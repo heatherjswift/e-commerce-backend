@@ -1,4 +1,6 @@
 const router = require('express').Router();
+// don't i need to require sequelize here?
+//const sequelize = require('../../config/connection')
 const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // The `/api/products` endpoint
@@ -6,7 +8,33 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // get all products
 router.get('/', (req, res) => {
   // find all products
-  // be sure to include its associated Category and Tag data
+  Product.findAll({
+    // be sure to include its associated Category and Tag data
+      attributes: [
+        'id',
+        'product_name',
+        'price',
+        'stock',
+        //is this enough here?
+        'category_id'
+      ],
+      include: [
+        {
+          model: Category,
+          attributes: ['id', 'category_name']
+        },
+        {
+          model: Tag,
+          attributes: ['id', 'tag_name']
+        }
+      ]
+  }).then(dbProduct => {
+    res.json(dbProduct);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  })
 });
 
 // get one product
